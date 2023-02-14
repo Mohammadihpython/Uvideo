@@ -1,0 +1,39 @@
+version: "3.7" 
+
+services:
+  mongodb:
+    image: mongo:latest
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+        - type: bind
+          source: ./data
+          target: /data/db
+
+  mongo-express:
+        image: mongo-express
+        restart: always
+        ports:
+          - 8081:8081
+        environment:
+          ME_CONFIG_MONGODB_ADMINUSERNAME: root
+          ME_CONFIG_MONGODB_ADMINPASSWORD: example
+          ME_CONFIG_MONGODB_SERVER: mongodb
+
+  redis:
+    image: redislabs/redismod
+    ports:
+      - 6379:6379
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - '8001:8001'
+    volumes:
+      - ./Users/ajeetraina/data/redisinsight:/db 
+
+volumes:
+  data:
