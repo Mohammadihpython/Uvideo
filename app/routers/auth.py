@@ -1,12 +1,11 @@
-from fastapi import FastAPI, BackgroundTasks, UploadFile, Form, Body, HTTPException, status, Response, Depends, \
-    APIRouter
+from fastapi import Body, HTTPException, status, Response, APIRouter
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from app.config import settings
-from app.schimas import User, UserLightIn, UserLighOut
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
-from .jwt_authentication import AuthHandler
+from app.schimas import User, UserLightIn, UserLightOut
+from motor.motor_asyncio import AsyncIOMotorClient
+from app.jwt_authentication import AuthHandler
 
 MONGO_HOST = settings.MONGO_HOST
 MONGO_PORT = settings.MONGO_PORT
@@ -23,7 +22,7 @@ async def get_db():
     router.users = user_db
 
 
-@router.post('/sign-up', status_code=status.HTTP_201_CREATED,response_class=UserLighOut)
+@router.post('/sign-up', status_code=status.HTTP_201_CREATED, response_model=UserLightOut)
 async def sign_up(user: User = Body(...), ):
     user = jsonable_encoder(user)
     users_db = router.users
@@ -41,7 +40,7 @@ async def sign_up(user: User = Body(...), ):
     # return{"u":created_user}
 
 
-@router.post('/login', status_code=status.HTTP_200_OK, response_model=UserLighOut)
+@router.post('/login', status_code=status.HTTP_200_OK, response_model=UserLightOut)
 async def login(user: UserLightIn):
     user = jsonable_encoder(user)
     users_db = router.users

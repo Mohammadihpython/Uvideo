@@ -1,7 +1,10 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth
+from starlette_exporter import PrometheusMiddleware,handle_metrics
+
+
+from .routers import auth,video_service
 
 app = FastAPI()
 
@@ -15,8 +18,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(PrometheusMiddleware)
+app.add_route("/metrics", handle_metrics)
 app.include_router(auth.router)
-
+app.include_router(video_service.router)
 
 @app.get("/")
 def root():
