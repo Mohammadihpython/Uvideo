@@ -23,7 +23,7 @@ async def _generate_hash():
     return binascii.hexlify(os.urandom(16)).decode('utf-8')
 
 async def _get_videos(user=Depends(auth_handler.auth_wraper)):
-    videos = router.library.find({'phone_number': user.phone_number})
+    videos = router.library.find({'phone_number': user})
     docs = await videos.to_list(None)
     video_urls = ''
     for i in docs:
@@ -36,11 +36,11 @@ async def _get_videos(user=Depends(auth_handler.auth_wraper)):
 @router.get('/')
 async def index(user=Depends(auth_handler.auth_wraper)):
     videos = await _get_videos(user)
-    return videos
+    return HTMLResponse(videos)
 
 
 async def _add_library_record(hash: str, user=Depends(auth_handler.auth_wraper), ):
-    data = {'phone_number': user.phone_number, 'filename': hash}
+    data = { 'filename': hash,'user_phone_number': user,}
     await router.library.insert_one(data)
 
 
@@ -53,13 +53,13 @@ async def _upload(file: object, hash: str):
 
 @router.post('/upload')
 async def upload(file: UploadFile, background_tasks: BackgroundTasks,user=Depends(auth_handler.auth_wraper)):
-    if user.phone_number:
+    if user:
         if file.filename:
             hash = await _generate_hash()
             background_tasks.add_task(_upload, file, hash)
-            background_tasks.add_task(_add_library_record, user.phone_number, hash)
-            videos = await _get_videos(user.phone_number)
-            return videos
+            background_tasks.add_task(_add_library_record, user, hash)
+            videos = await _get_videos(user)
+            return {videos: videos}
 
 
 @router.get('/stream/{filename}')

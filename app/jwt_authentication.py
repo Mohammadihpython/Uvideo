@@ -19,7 +19,7 @@ class AuthHandler:
 
     def encode_token(self, user_phone_number: str):
         payload = {
-            'exp': datetime.utcnow() + timedelta(days=0, minutes=15),
+            'exp': datetime.utcnow() + timedelta(days=0, minutes=40),
             'iat': datetime.utcnow(),
             'sub': user_phone_number
         }

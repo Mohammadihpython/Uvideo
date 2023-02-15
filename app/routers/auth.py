@@ -2,8 +2,8 @@ from fastapi import Body, HTTPException, status, Response, APIRouter
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
-from app.config import settings
-from app.schimas import User, UserLightIn, UserLightOut
+from ..config import settings
+from ..schimas import User, UserLightIn, UserLightOut
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.jwt_authentication import AuthHandler
 
@@ -41,7 +41,7 @@ async def sign_up(user: User = Body(...), ):
 
 
 @router.post('/login', status_code=status.HTTP_200_OK, response_model=UserLightOut)
-async def login(user: UserLightIn):
+async def login(user: UserLightIn= Body(...),):
     user = jsonable_encoder(user)
     users_db = router.users
     user_db = await users_db.users.find_one({'phone_number': user["phone_number"]})
